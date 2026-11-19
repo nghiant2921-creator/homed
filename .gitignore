@@ -1,0 +1,29 @@
+# Secrets and local environments
+.env*
+!.env.example
+.venv/
+venv/
+node_modules/
+.vscode/
+*.code-workspace
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Model weights and training outputs
+*.pt
+TCM-Tongue/dataset/TCM_Tongue_Runs/
+runs/
+
+# Dataset archives and local datasets (obtain separately)
+TCM-Tongue/dataset.tar.gz
+TCM-Tongue/shezhenv3COCO.zip
+TCM-Tongue/dataset/shezhenv3-coco-percent-3/
+TCM-Tongue/dataset/mae_pretrain/
+TCM-Tongue/dataset/mae_pretrain_mini/
+TCM-Tongue-YOLO/
+
+# Local caches and per-image inference outputs
+TCM-Tongue/.cache/
+results/result_*.json

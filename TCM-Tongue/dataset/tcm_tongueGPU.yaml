@@ -1,0 +1,29 @@
+train: shezhenv3-coco-percent-3/train/images
+val: shezhenv3-coco-percent-3/val/images
+test: shezhenv3-coco-percent-3/test/images
+
+# Số lượng lớp bệnh lý
+nc: 20
+
+# Danh sách 20 nhãn chuẩn (ID 0 -> 19)
+names:
+  0: jiankangshe   # Lưỡi khỏe mạnh (bình thường)
+  1: baotaishe     # Lưỡi rêu mỏng
+  2: hongshe       # Lưỡi đỏ
+  3: zishe         # Lưỡi tím / ứ huyết
+  4: pangdashe     # Lưỡi bệu / to
+  5: shoushe       # Lưỡi gầy / mỏng
+  6: hongdianshe   # Lưỡi có điểm đỏ
+  7: liewenshe     # Lưỡi nứt
+  8: chihenshe     # Lưỡi có dấu răng
+  9: baitaishe     # Rêu lưỡi trắng
+  10: huangtaishe  # Rêu lưỡi vàng
+  11: heitaishe    # Rêu lưỡi đen / xám
+  12: huataishe    # Rêu lưỡi trơn nhớt
+  13: shenquao     # Vùng thận lõm (gốc lưỡi)
+  14: shenqutu     # Vùng thận lồi (gốc lưỡi)
+  15: gandanao     # Vùng gan mật lõm (rìa lưỡi)
+  16: gandantu     # Vùng gan mật lồi (rìa lưỡi)
+  17: piweiao      # Vùng tỳ vị lõm (giữa lưỡi)
+  18: xinfeitu     # Vùng tâm phế lồi (đầu lưỡi)
+  19: xinfeiao     # Vùng tâm phế lõm (đầu lưỡi)

@@ -1,0 +1,20 @@
+{
+  "name": "gemini-nodejs-quickstart",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node --env-file=.env index.js",
+    "server": "node server.js",
+    "local": "node indexLocal.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@google/genai": "^3.5.0",
+    "express": "^5.3.0"
+  }
+}
