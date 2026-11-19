@@ -9,5 +9,7 @@
 - Training config van giu 20 class; tren CUDA bat se chay cau hinh GPU 100 epochs/fraction=1.0, tren CPU chay smoke test.
 - Da `git init` va kiem tra `.gitignore` nhan dien dung `.env`, archives, dataset, weights va node_modules.
 - Commit chua tao vi Git chua co author name/email; cac file dang staged, khong co `.env`, weights, hoac dataset.
-- Nguoi dung da cung cap commit author name/email va yeu cau public repository moi, nhung chuoi nhap `cumminity-paliative` can xac nhan la ten repo chinh xac.
-- Chua tao remote/commit/push den khi co ten repo va URL chinh xac; profile URL khong phai clone URL.
+- Da tao commit local `4f6a51c` tren branch `master` va remote `origin` tro toi `https://github.com/nghiant2921-creator/homed.git`.
+- Push chua thanh cong: moi truong Git khong cho nhap thong tin xac thuc (`GIT_TERMINAL_PROMPT=0`); GitHub tu choi username/token.
+- Commit hien dung email tac gia do nguoi dung cung cap. Neu repository public, email nay se hien trong Git history; can xac nhan truoc khi push hoac tao lai history voi email noreply.
+- `.env`, weights, dataset archives, extracted data, va virtualenv khong nam trong commit.
