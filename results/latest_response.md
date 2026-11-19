@@ -1,15 +1,15 @@
-# Chuan bi project de push GitHub va chay tren GPU workstation
+# GitHub push and GPU workstation status
 
-- Da khoi tao Git repository local; workspace truoc do chua co `.git`.
-- Da them `.gitignore` de loai `.env`, virtualenv, `node_modules`, weights `.pt`, cac run, dataset archive/extracted data va ket qua suy luan theo tung anh.
-- Dataset archive trong workspace nang khoang 3.1 GB va 873 MB; khong nen dua len GitHub. Can lay dataset tu nguon goc theo ghi chu attribution trong `TCM-Tongue/README.md` va dam bao quyen su dung.
-- Da them `README.md` voi huong dan Windows/Linux, cai PyTorch CUDA theo workstation, cai Ultralytics, xac minh `torch.cuda.is_available()` va chay script train chung.
-- Da them `requirements-training.txt` va `.env.example`; `.env` thuc te duoc ignore, khong in hoac dua key len Git.
-- Trang thai model hien tai: PyTorch `2.15.0+cpu`, CUDA=False; co checkpoint local tu CPU smoke-test, khong phai model GPU da huan luyen day du.
-- Training config van giu 20 class; tren CUDA bat se chay cau hinh GPU 100 epochs/fraction=1.0, tren CPU chay smoke test.
-- Da `git init` va kiem tra `.gitignore` nhan dien dung `.env`, archives, dataset, weights va node_modules.
-- Commit chua tao vi Git chua co author name/email; cac file dang staged, khong co `.env`, weights, hoac dataset.
-- Da tao commit local `4f6a51c` tren branch `master` va remote `origin` tro toi `https://github.com/nghiant2921-creator/homed.git`.
-- Push chua thanh cong: moi truong Git khong cho nhap thong tin xac thuc (`GIT_TERMINAL_PROMPT=0`); GitHub tu choi username/token.
-- Commit hien dung email tac gia do nguoi dung cung cap. Neu repository public, email nay se hien trong Git history; can xac nhan truoc khi push hoac tao lai history voi email noreply.
-- `.env`, weights, dataset archives, extracted data, va virtualenv khong nam trong commit.
+- The local repository is `master`, with `origin` set to `https://github.com/nghiant2921-creator/homed.git`.
+- Verified GitHub `refs/heads/master` is at commit `832f04f1d96431d57535c25718357607a6383305`, matching the latest local commit at verification time. The project is pushed; no additional push command is needed unless new commits are made.
+- To push future changes from the project directory:
+
+  ```bash
+  git add .
+  git commit -m "Describe your change"
+  git push
+  ```
+
+- `.env`, Python environments, `node_modules`, dataset archives/extracted images, weights, and training runs are ignored by Git. Never commit the Gemini API key.
+- Dataset archives are several gigabytes and are not included. Obtain the data separately from its original source, respecting its license and the attribution in `TCM-Tongue/README.md`.
+- The current local model is a CPU smoke-test checkpoint (`torch 2.15.0+cpu`, `CUDA=False`), not a full GPU-trained model. Training uses the 20 classes in `tcm_tongue.yaml`. On an NVIDIA workstation, install a CUDA-compatible PyTorch build, verify `torch.cuda.is_available()` is `True`, install `requirements-training.txt`, put the dataset in the documented directory, then run `python TCM-Tongue/dataset/train.py`.
