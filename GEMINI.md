@@ -1,17 +1,18 @@
-# Quy tắc thực thi bắt buộc cho dự án TCM-Tongue
+# Quy tắc thực thi bắt buộc cho dự án (TCM-Tongue & Fall Detection)
 
 Mỗi khi nhận được prompt trong workspace này, hãy thực hiện tuần tự 4 bước sau trước khi đưa ra câu trả lời cuối cùng:
 
-1. **Tham khảo cấu hình & trạng thái Training trước:**
-   - Đọc `TCM-Tongue/dataset/train.py` và `TCM-Tongue/dataset/tcm_tongue.yaml` (20 nhãn triệu chứng lưỡi YHCT).
-   - Kiểm tra thư mục `TCM-Tongue/dataset/TCM_Tongue_Runs/` (nếu đã có `results.csv` hoặc `weights/best.pt`) để xác định mô hình đang chạy thử trên CPU hay đã huấn luyện xong trên GPU.
+1. **Tham khảo cấu hình & trạng thái Training của cả 2 component trước:**
+   - **Component 1 (Chẩn đoán lưỡi YHCT):** Đọc `TCM-Tongue/dataset/train.py`, `TCM-Tongue/dataset/tcm_tongue.yaml` (20 lớp bệnh lý) và kiểm tra checkpoint mới nhất trong `TCM-Tongue/dataset/TCM_Tongue_Runs/` hoặc `runs/detect/`.
+   - **Component 2 (Dự đoán té ngã / dáng đi):** Đọc cấu trúc thư mục, tệp `README.md`, script huấn luyện/suy luận và trọng số mô hình (`.pt`, `.onnx`, `.h5`...) trong `fall-detection-system/`.
+   - Xác định rõ trạng thái hiện tại (đang chạy thử nghiệm trên máy văn phòng CPU không có AVX2/`CUDA=False` hay đã train trên máy GPU).
 
 2. **Kiểm tra API hiện có trong dự án:**
-   - Kiểm tra `package.json`, `.env` (chỉ kiểm tra sự tồn tại của biến `GEMINI_API_KEY` hoặc cấu hình endpoint, không in giá trị key ra ngoài) và các tệp `.js`/`.py` trong thư mục gốc.
-   - Nếu dự án đã có sẵn API/SDK (`@google/genai`, Express/Fastify route...), ưu tiên tích hợp trực tiếp vào kiến trúc hiện có. Nếu chưa có hoặc key trống, cung cấp giải pháp chạy độc lập cục bộ.
+   - Kiểm tra `package.json`, `.env` (chỉ kiểm tra sự tồn tại của biến `GEMINI_API_KEY` hoặc các biến API khác, tuyệt đối không in giá trị key) và các endpoint trong thư mục gốc.
+   - Tận dụng trực tiếp SDK/API đang có sẵn (`@google/genai`...) khi tích hợp luồng chẩn đoán hoặc cảnh báo.
 
 3. **Trả lời đúng ngữ cảnh phần cứng & dữ liệu:**
-   - Đảm bảo mã nguồn tương thích chéo giữa máy văn phòng (CPU không có AVX2, `CUDA=False`) và máy GPU sau này, bám sát đúng 20 lớp bệnh lý trong `tcm_tongue.yaml`.
+   - Đảm bảo mã nguồn tương thích chéo giữa máy văn phòng (CPU yếu, cần `polars[rtcompat]`, `workers=0` hoặc `2`) và máy GPU sau này.
 
 4. **Lưu kết quả vào thư mục `results/`:**
-   - Tự động tạo hoặc cập nhật kết quả đầu ra (báo cáo phân tích, cấu hình cập nhật, hoặc kết quả suy luận mẫu) vào thư mục `results/` (ví dụ: `results/latest_response.md` hoặc `results/output.json`).
+   - Tự động ghi nhận báo cáo, cấu hình mới hoặc kết quả suy luận mẫu của cả 2 component vào thư mục `results/` (ví dụ: `results/fall_detection_audit.md`, `results/latest_response.md`).
