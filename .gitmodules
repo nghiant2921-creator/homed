@@ -1,0 +1,3 @@
+[submodule "fall-detection-system"]
+	path = fall-detection-system
+	url = https://github.com/nghiant2921-creator/fall-detection-system.git
