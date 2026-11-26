@@ -113,3 +113,59 @@ npm ci
 Copy `.env.example` to `.env` and set `GEMINI_API_KEY` only if you intend to
 run the Gemini examples. Never commit `.env` or paste an API key into source
 code. The YOLO training and inference scripts do not need a Gemini key.
+
+## Run the doctor dashboard on Windows
+
+The Vite/React app opens the doctor-facing Vital Signs dashboard first. It
+reuses `vital-signs-system/doctor_dashboard.html`; its current sample data is
+for preview only, and selected JSONL files are read locally in the browser.
+The existing Express API can run separately on Ubuntu. In the repository root:
+
+```powershell
+npm ci
+```
+
+Create an ignored `.env.local` file and set the Ubuntu server's private LAN or
+VPN address. Do not put `GEMINI_API_KEY` in a `VITE_` variable; keep that key
+only in the Ubuntu backend's `.env`.
+
+```dotenv
+VITE_BACKEND_URL=http://<ubuntu-private-ip>:3000
+```
+
+Start the dashboard and open the printed local URL (normally
+`http://127.0.0.1:5173`):
+
+```powershell
+npm run dev
+```
+
+### Share a public preview
+
+The repository is configured to deploy the **static demo dashboard** to GitHub
+Pages when changes are pushed to `master`. After the first successful workflow,
+open:
+
+<https://nghiant2921-creator.github.io/homed/>
+
+To enable the first deployment, open the repository's **Settings → Pages** and
+select **GitHub Actions** as the build and deployment source. The workflow is
+`.github/workflows/deploy-pages.yml`. The local Vite URL remains unchanged.
+This public page contains only the demo dashboard; do not load, publish, or
+send real patient data there. GitHub Pages is static hosting and does not run
+the Ubuntu backend or process Gemini API requests.
+
+The top bar links to the official Gemini API documentation. This is a
+documentation link only: the dashboard does not yet call Gemini or the Express
+API. Vite proxies `/api/*` requests to `VITE_BACKEND_URL`; without `.env.local`
+it uses `http://localhost:3000`. Existing backend routes include
+`/api/analyze/tongue`, `/api/analyze/fall`, and `/api/analyze/holistic`.
+Keep `GEMINI_API_KEY` on the Ubuntu backend; never expose it in a `VITE_`
+variable. Keep the Ubuntu API on a trusted private network or VPN; do not
+expose port 3000 directly to the public Internet.
+
+To check a production bundle:
+
+```powershell
+npm run build
+```

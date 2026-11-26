@@ -4,6 +4,7 @@
 .venv/
 venv/
 node_modules/
+dist/
 .vscode/
 *.code-workspace
 
