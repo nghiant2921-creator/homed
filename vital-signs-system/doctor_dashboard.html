@@ -1,0 +1,554 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Giao diện xem thử dữ liệu telemetry của Vital Signs Edge."
+    />
+    <title>Theo dõi sinh hiệu | Vital Signs Edge</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: #172a31;
+        background: #f3f6f4;
+        font-synthesis: none;
+        text-rendering: optimizeLegibility;
+        --muted: #718087;
+        --line: #e4eae7;
+        --green: #17836f;
+        --green-soft: #e5f4ef;
+        --orange: #b65b2b;
+        --orange-soft: #fff0e6;
+        --navy: #18343b;
+      }
+
+      * { box-sizing: border-box; }
+
+      body { margin: 0; min-width: 320px; }
+
+      button, input { font: inherit; }
+
+      .topbar {
+        height: 72px;
+        background: #fff;
+        border-bottom: 1px solid var(--line);
+        display: flex;
+        align-items: center;
+      }
+
+      .topbar-inner, main {
+        width: min(1120px, calc(100% - 40px));
+        margin: 0 auto;
+      }
+
+      .topbar-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .brand { display: flex; align-items: center; gap: 11px; font-weight: 750; letter-spacing: -.02em; }
+      .brand-mark {
+        width: 36px;
+        height: 36px;
+        display: grid;
+        place-items: center;
+        border-radius: 12px;
+        color: #fff;
+        background: var(--green);
+      }
+
+      .top-meta { color: var(--muted); font-size: 13px; }
+      main { padding: 38px 0 56px; }
+
+      .eyebrow {
+        margin: 0 0 10px;
+        color: var(--green);
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: .13em;
+        text-transform: uppercase;
+      }
+
+      .heading-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 24px;
+        margin-bottom: 24px;
+      }
+
+      h1 { margin: 0; font-size: clamp(28px, 4vw, 38px); letter-spacing: -.045em; }
+      .subtitle { margin: 9px 0 0; color: var(--muted); font-size: 14px; }
+
+      .source-pill, .tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid #d5e5dd;
+        border-radius: 999px;
+        padding: 9px 12px;
+        background: #f3faf6;
+        color: #35685b;
+        font-size: 12px;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+
+      .source-dot { width: 7px; height: 7px; border-radius: 50%; background: #d48a43; }
+
+      .notice {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        margin-bottom: 20px;
+        padding: 14px 16px;
+        border: 1px solid #f1ddbd;
+        border-radius: 12px;
+        background: #fff9ee;
+        color: #76552d;
+        font-size: 13px;
+        line-height: 1.55;
+      }
+
+      .notice strong { color: #65441e; }
+
+      .toolbar, .card, .status-card {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: #fff;
+        box-shadow: 0 5px 22px rgb(22 50 42 / 3%);
+      }
+
+      .toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 18px;
+        padding: 15px 18px;
+      }
+
+      .record-title { font-size: 13px; font-weight: 750; }
+      .record-subtitle { margin-top: 4px; color: var(--muted); font-size: 12px; }
+      .toolbar-actions { display: flex; align-items: center; gap: 10px; }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 39px;
+        padding: 0 14px;
+        border: 0;
+        border-radius: 10px;
+        background: var(--navy);
+        color: #fff;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .button:hover { background: #24515a; }
+      .button:focus-visible { outline: 3px solid #8ccfbd; outline-offset: 2px; }
+      #file-input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); }
+
+      .error { min-height: 18px; margin: -7px 0 14px; color: #a23c32; font-size: 12px; }
+
+      .metrics {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+        margin-bottom: 16px;
+      }
+
+      .metric { padding: 18px; }
+      .metric-label { color: var(--muted); font-size: 12px; font-weight: 650; }
+      .metric-value { margin-top: 13px; font-size: 32px; font-weight: 760; letter-spacing: -.045em; }
+      .metric-unit { margin-left: 5px; color: var(--muted); font-size: 13px; font-weight: 600; letter-spacing: 0; }
+      .metric-foot { margin-top: 8px; color: #87949a; font-size: 11px; }
+      .metric-icon {
+        width: 30px;
+        height: 30px;
+        display: grid;
+        place-items: center;
+        float: right;
+        border-radius: 9px;
+        background: var(--green-soft);
+        color: var(--green);
+      }
+
+      .status-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        margin-bottom: 16px;
+        padding: 16px 18px;
+      }
+
+      .status-copy { display: flex; align-items: center; gap: 12px; }
+      .status-icon {
+        width: 38px;
+        height: 38px;
+        display: grid;
+        place-items: center;
+        border-radius: 12px;
+        background: var(--green-soft);
+        color: var(--green);
+        font-size: 18px;
+      }
+
+      .status-card.alert .status-icon { background: var(--orange-soft); color: var(--orange); }
+      .status-title { font-size: 13px; font-weight: 750; }
+      .status-detail { margin-top: 4px; color: var(--muted); font-size: 12px; }
+      .tag.alert { border-color: #f0d7c6; background: var(--orange-soft); color: var(--orange); }
+
+      .lower-grid { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(260px, .85fr); gap: 16px; }
+      .card { padding: 20px; }
+      .card-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+      h2 { margin: 0; font-size: 15px; letter-spacing: -.02em; }
+      .card-description { margin: 6px 0 0; color: var(--muted); font-size: 12px; }
+      .legend { display: flex; gap: 14px; color: var(--muted); font-size: 11px; }
+      .legend span { display: inline-flex; align-items: center; gap: 6px; }
+      .legend i { width: 8px; height: 8px; border-radius: 50%; background: #238a78; }
+      .legend span:last-child i { background: #e89a5d; }
+
+      .chart-wrap { margin-top: 18px; }
+      .chart { display: block; width: 100%; height: auto; overflow: visible; }
+      .chart text { fill: #91a0a4; font-family: inherit; font-size: 10px; }
+      .chart .grid { stroke: #edf1ef; stroke-width: 1; }
+      .chart .hr-line { fill: none; stroke: #238a78; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+      .chart .spo2-line { fill: none; stroke: #e89a5d; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+      .chart .hr-point { fill: #fff; stroke: #238a78; stroke-width: 2.5; }
+      .chart .spo2-point { fill: #fff; stroke: #e89a5d; stroke-width: 2.5; }
+
+      .events { display: grid; gap: 0; margin-top: 14px; }
+      .event {
+        display: grid;
+        grid-template-columns: 44px 1fr auto;
+        align-items: center;
+        gap: 10px;
+        min-height: 53px;
+        border-bottom: 1px solid #eff2f0;
+      }
+
+      .event:last-child { border-bottom: 0; }
+      .event-tick { color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+      .event-name { overflow: hidden; color: #30454c; font-size: 12px; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
+      .event-value { color: var(--muted); font-size: 11px; white-space: nowrap; }
+      .empty { padding: 22px 4px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+
+      footer { margin-top: 18px; color: #89979a; font-size: 11px; line-height: 1.6; text-align: center; }
+
+      @media (max-width: 760px) {
+        .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .lower-grid { grid-template-columns: 1fr; }
+        .heading-row { align-items: flex-start; flex-direction: column; }
+      }
+
+      @media (max-width: 520px) {
+        .topbar-inner, main { width: min(100% - 28px, 1120px); }
+        .top-meta { display: none; }
+        main { padding-top: 26px; }
+        .toolbar, .status-card { align-items: flex-start; flex-direction: column; }
+        .toolbar-actions { width: 100%; }
+        .toolbar-actions .button { width: 100%; }
+        .card { padding: 16px; }
+        .legend { gap: 8px; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M3 12h4l2.2-6 4.1 12 2.3-6H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </span>
+          <span>Vital Signs <span style="color:#17836f">Edge</span></span>
+        </div>
+        <span class="top-meta">Giao diện xem dữ liệu telemetry</span>
+      </div>
+    </header>
+
+    <main>
+      <div class="heading-row">
+        <div>
+          <p class="eyebrow">Theo dõi sinh hiệu · bản thử nghiệm</p>
+          <h1>Theo dõi sinh hiệu</h1>
+          <p class="subtitle">Tổng quan telemetry và nhãn đầu ra từ mô hình edge.</p>
+        </div>
+        <span class="source-pill"><i class="source-dot" aria-hidden="true"></i><span id="source-label">Bản xem trước · dữ liệu minh họa</span></span>
+      </div>
+
+      <aside class="notice" role="note">
+        <span aria-hidden="true">ⓘ</span>
+        <span><strong>Bản thử nghiệm, không phải hồ sơ bệnh án.</strong> Mặc định trang dùng dữ liệu minh họa; khi nạp JSONL, tệp được xử lý ngay trong trình duyệt và không gửi lên máy chủ. Không dùng nhãn mô hình để thay thế đánh giá chuyên môn.</span>
+      </aside>
+
+      <section class="toolbar" aria-label="Nguồn dữ liệu">
+        <div>
+          <div class="record-title" id="record-title">Hồ sơ minh họa</div>
+          <div class="record-subtitle" id="record-subtitle">Chưa kết nối thiết bị · tick cuối —</div>
+        </div>
+        <div class="toolbar-actions">
+          <input id="file-input" type="file" accept=".jsonl,.json,.txt,application/json" />
+          <label class="button" for="file-input">Nạp JSONL từ daemon</label>
+        </div>
+      </section>
+      <p class="error" id="error-message" role="status" aria-live="polite"></p>
+
+      <section class="metrics" aria-label="Chỉ số mới nhất">
+        <article class="card metric">
+          <span class="metric-icon" aria-hidden="true">♥</span>
+          <div class="metric-label">Nhịp tim</div>
+          <div class="metric-value"><span id="hr-value">—</span><span class="metric-unit">bpm</span></div>
+          <div class="metric-foot">Telemetry gần nhất</div>
+        </article>
+        <article class="card metric">
+          <span class="metric-icon" aria-hidden="true">◉</span>
+          <div class="metric-label">SpO₂</div>
+          <div class="metric-value"><span id="spo2-value">—</span><span class="metric-unit">%</span></div>
+          <div class="metric-foot">Telemetry gần nhất</div>
+        </article>
+        <article class="card metric">
+          <span class="metric-icon" aria-hidden="true">⌁</span>
+          <div class="metric-label">Góc thân</div>
+          <div class="metric-value"><span id="torso-value">—</span><span class="metric-unit">°</span></div>
+          <div class="metric-foot">Giá trị từ daemon C</div>
+        </article>
+        <article class="card metric">
+          <span class="metric-icon" aria-hidden="true">◎</span>
+          <div class="metric-label">Độ tin cậy mô hình</div>
+          <div class="metric-value"><span id="confidence-value">—</span><span class="metric-unit" id="confidence-unit"></span></div>
+          <div class="metric-foot">Chỉ hiển thị nếu JSON có trường confidence</div>
+        </article>
+      </section>
+
+      <section class="status-card" id="status-card" aria-live="polite">
+        <div class="status-copy">
+          <span class="status-icon" id="status-icon" aria-hidden="true">✓</span>
+          <div>
+            <div class="status-title" id="status-title">Đang xem dữ liệu minh họa</div>
+            <div class="status-detail" id="status-detail">Không có thiết bị hoặc bệnh nhân thật được kết nối.</div>
+          </div>
+        </div>
+        <span class="tag" id="status-tag">DEMO</span>
+      </section>
+
+      <div class="lower-grid">
+        <section class="card" aria-labelledby="chart-title">
+          <div class="card-heading">
+            <div>
+              <h2 id="chart-title">Diễn biến telemetry</h2>
+              <p class="card-description">Các điểm được xếp theo tick trong tệp đã nạp.</p>
+            </div>
+            <div class="legend" aria-label="Chú giải biểu đồ">
+              <span><i></i>Nhịp tim</span>
+              <span><i></i>SpO₂</span>
+            </div>
+          </div>
+          <div class="chart-wrap" id="chart-wrap"></div>
+        </section>
+
+        <section class="card" aria-labelledby="events-title">
+          <div class="card-heading">
+            <div>
+              <h2 id="events-title">Bản ghi gần đây</h2>
+              <p class="card-description">Nhãn nguyên bản do mô hình phát ra.</p>
+            </div>
+          </div>
+          <div class="events" id="events-list"></div>
+        </section>
+      </div>
+
+      <footer>
+        Bản demo giao diện offline · Không phải thiết bị y tế · Không đưa ra chẩn đoán hoặc khuyến nghị điều trị.
+      </footer>
+    </main>
+
+    <script>
+      const demoRecords = [
+        { tick: 10, hr: 69, spo2: 97.5, torso_deg: 85, prediction: "Dữ liệu minh họa" },
+        { tick: 11, hr: 70, spo2: 97.3, torso_deg: 84, prediction: "Dữ liệu minh họa" },
+        { tick: 12, hr: 68, spo2: 97.4, torso_deg: 85, prediction: "Dữ liệu minh họa" },
+        { tick: 13, hr: 71, spo2: 97.2, torso_deg: 82, prediction: "Dữ liệu minh họa" },
+        { tick: 14, hr: 73, spo2: 97.1, torso_deg: 76, prediction: "Dữ liệu minh họa" },
+        { tick: 15, hr: 82, spo2: 96.8, torso_deg: 61, prediction: "Dữ liệu minh họa" },
+        { tick: 16, hr: 94, spo2: 96.4, torso_deg: 48, prediction: "Dữ liệu minh họa" },
+        { tick: 17, hr: 88, spo2: 96.2, torso_deg: 55, prediction: "Dữ liệu minh họa" },
+        { tick: 18, hr: 78, spo2: 96.8, torso_deg: 70, prediction: "Dữ liệu minh họa" },
+        { tick: 19, hr: 74, spo2: 97.0, torso_deg: 82, prediction: "Dữ liệu minh họa" },
+      ];
+
+      const byId = (id) => document.getElementById(id);
+      let records;
+      let sourceName = "Bản xem trước · dữ liệu minh họa";
+      let isDemo = true;
+
+      function normalizeRecord(record) {
+        if (!record || typeof record !== "object" || record.status === "WARMING_UP") return null;
+        const tick = Number(record.tick);
+        const hr = Number(record.hr ?? record.hr_raw);
+        const spo2 = Number(record.spo2);
+        const torso = Number(record.torso_deg);
+        if (![tick, hr, spo2, torso].every(Number.isFinite)) return null;
+
+        const confidence = record.confidence === null || record.confidence === undefined
+          ? Number.NaN
+          : Number(record.confidence);
+        return {
+          tick,
+          hr,
+          spo2,
+          torso,
+          prediction: typeof record.prediction === "string" ? record.prediction : "Chưa có nhãn",
+          confidence: Number.isFinite(confidence) ? confidence : null,
+          alert: record.trigger_vlm_hitl === true || record.uds_dispatched === true,
+        };
+      }
+
+      records = demoRecords.map(normalizeRecord).filter(Boolean);
+
+      function pointsFor(key, min, max, width, height, padding, className) {
+        const span = Math.max(max - min, 1);
+        const innerWidth = width - padding.left - padding.right;
+        const innerHeight = height - padding.top - padding.bottom;
+        const coords = records.map((item, index) => {
+          const x = padding.left + (records.length === 1 ? innerWidth / 2 : index * innerWidth / (records.length - 1));
+          const y = padding.top + innerHeight - ((item[key] - min) / span) * innerHeight;
+          return { x, y };
+        });
+        const polyline = coords.map((point) => `${point.x},${point.y}`).join(" ");
+        const circles = coords.map((point) => `<circle class="${className}-point" cx="${point.x}" cy="${point.y}" r="3.5"/>`).join("");
+        return `<polyline class="${className}-line" points="${polyline}"/>${circles}`;
+      }
+
+      function renderChart() {
+        const width = 620;
+        const height = 220;
+        const padding = { top: 18, right: 18, bottom: 34, left: 42 };
+        const hrValues = records.map((item) => item.hr);
+        const spo2Values = records.map((item) => item.spo2);
+        const hrMin = Math.min(...hrValues) - 5;
+        const hrMax = Math.max(...hrValues) + 5;
+        const spo2Min = Math.min(...spo2Values) - 1;
+        const spo2Max = Math.max(...spo2Values) + 1;
+        const grid = [0, 1, 2, 3].map((row) => {
+          const y = padding.top + row * (height - padding.top - padding.bottom) / 3;
+          return `<line class="grid" x1="${padding.left}" y1="${y}" x2="${width - padding.right}" y2="${y}"/>`;
+        }).join("");
+        const labels = records.length > 1
+          ? [records[0].tick, records[Math.floor((records.length - 1) / 2)].tick, records[records.length - 1].tick]
+          : [records[0].tick];
+        const tickLabels = labels.map((tick, index) => {
+          const x = labels.length === 1
+            ? width / 2
+            : padding.left + index * (width - padding.left - padding.right) / (labels.length - 1);
+          return `<text x="${x}" y="${height - 8}" text-anchor="middle">tick ${tick}</text>`;
+        }).join("");
+        byId("chart-wrap").innerHTML = `
+          <svg class="chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="Biểu đồ nhịp tim và SpO2 theo tick">
+            ${grid}
+            ${pointsFor("hr", hrMin, hrMax, width, height, padding, "hr")}
+            ${pointsFor("spo2", spo2Min, spo2Max, width, height, padding, "spo2")}
+            ${tickLabels}
+          </svg>`;
+      }
+
+      function renderEvents() {
+        const list = byId("events-list");
+        list.replaceChildren();
+        records.slice(-6).reverse().forEach((item) => {
+          const row = document.createElement("div");
+          row.className = "event";
+          const tick = document.createElement("span");
+          tick.className = "event-tick";
+          tick.textContent = `#${item.tick}`;
+          const label = document.createElement("span");
+          label.className = "event-name";
+          label.textContent = item.prediction;
+          const value = document.createElement("span");
+          value.className = "event-value";
+          value.textContent = item.alert ? "Có cờ cảnh báo" : `${item.hr.toFixed(0)} bpm`;
+          row.append(tick, label, value);
+          list.append(row);
+        });
+      }
+
+      function render() {
+        const latest = records[records.length - 1];
+        byId("source-label").textContent = sourceName;
+        byId("record-title").textContent = isDemo ? "Hồ sơ minh họa" : "Dữ liệu từ tệp JSONL";
+        byId("record-subtitle").textContent = `${isDemo ? "Chưa kết nối thiết bị" : "Đọc cục bộ trong trình duyệt"} · ${records.length} bản ghi · tick cuối ${latest.tick}`;
+        byId("hr-value").textContent = latest.hr.toFixed(0);
+        byId("spo2-value").textContent = latest.spo2.toFixed(1);
+        byId("torso-value").textContent = latest.torso.toFixed(1);
+        byId("confidence-value").textContent = latest.confidence === null ? "—" : (latest.confidence * 100).toFixed(1);
+        byId("confidence-unit").textContent = latest.confidence === null ? "" : "%";
+        byId("status-card").classList.toggle("alert", latest.alert);
+        byId("status-icon").textContent = latest.alert ? "!" : "✓";
+        byId("status-title").textContent = latest.alert ? "Mô hình có gắn cờ cảnh báo" : "Đang xem dữ liệu telemetry";
+        byId("status-detail").textContent = `Nhãn đầu ra: ${latest.prediction}. Đây là thông tin mô hình, không phải kết luận y khoa.`;
+        byId("status-tag").textContent = latest.alert ? "CÓ CỜ TỪ MÔ HÌNH" : (isDemo ? "DEMO" : "TỆP ĐÃ NẠP");
+        byId("status-tag").classList.toggle("alert", latest.alert);
+        renderChart();
+        renderEvents();
+      }
+
+      function parseFileContents(text) {
+        const trimmed = text.trim();
+        if (!trimmed) throw new Error("Tệp không có dữ liệu.");
+        if (trimmed.startsWith("[")) {
+          const parsed = JSON.parse(trimmed);
+          if (!Array.isArray(parsed)) throw new Error("JSON phải là một mảng bản ghi.");
+          return parsed.map(normalizeRecord).filter(Boolean);
+        }
+
+        const parsed = [];
+        let invalidLines = 0;
+        for (const line of trimmed.split(/\r?\n/)) {
+          if (!line.trim()) continue;
+          try {
+            const record = normalizeRecord(JSON.parse(line));
+            if (record) parsed.push(record);
+            else invalidLines++;
+          } catch {
+            invalidLines++;
+          }
+        }
+        return { records: parsed, invalidLines };
+      }
+
+      byId("file-input").addEventListener("change", async (event) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+        byId("error-message").textContent = "";
+        try {
+          const parsed = parseFileContents(await file.text());
+          const loaded = Array.isArray(parsed) ? parsed : parsed.records;
+          if (loaded.length === 0) throw new Error("Không tìm thấy bản ghi hợp lệ có tick, hr, spo2 và torso_deg.");
+          records = loaded.slice(-120);
+          isDemo = false;
+          sourceName = `Tệp cục bộ · ${file.name}`;
+          const invalidLines = Array.isArray(parsed) ? 0 : parsed.invalidLines;
+          byId("error-message").textContent = invalidLines
+            ? `Đã nạp ${records.length} bản ghi; bỏ qua ${invalidLines} dòng không hợp lệ hoặc đang WARMING_UP.`
+            : "";
+          render();
+        } catch (error) {
+          byId("error-message").textContent = `Không nạp được tệp: ${error.message}`;
+        } finally {
+          event.target.value = "";
+        }
+      });
+
+      render();
+    </script>
+  </body>
+</html>

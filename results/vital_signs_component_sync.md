@@ -5,11 +5,16 @@ Checked on 2026-11-26.
 - The C sources and Python baseline inspector were moved from `src/` into
   `vital-signs-system/`; each new file is byte-identical to its previously
   tracked counterpart.
+- A standalone doctor-facing preview is available at
+  `vital-signs-system/doctor_dashboard.html`. It starts with synthetic demo
+  data and can import daemon JSONL locally; it is not a live feed.
 - The Windows `.exe` was moved with the component. Ubuntu users should compile
   native binaries using `vital-signs-system/README.md`.
 - Python AST parsing passed. The available Windows GCC returned exit code 1
   without diagnostics for both C syntax checks, so C compilation was not
   verified in this environment.
+- Dashboard browser check passed for demo rendering and JSONL import, including
+  displaying an alert flag and skipping a `WARMING_UP` record.
 - `.vscode/tasks.json` is ignored by the repository and uses a machine-local
   MSYS2 Windows GCC path; it was not staged.
 - The repository API uses `@google/genai`; `.env` contains a `GEMINI_API_KEY`

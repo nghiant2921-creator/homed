@@ -1,10 +1,10 @@
 # Edge Triage Daemon - huong dan build va chay tren Windows
 
-Ngay kiem tra: 2026-11-23
+Ngay kiem tra: 2026-11-26
 
 ## Ket luan
 
-File `src/CCplusCsharp/edge_triage_daemon.c` hien co the build va chay native tren Windows.
+File `vital-signs-system/CCplusCsharp/edge_triage_daemon.c` hien co the build va chay native tren Windows.
 Windows su dung UDP loopback thay cho UDS/FIFO; Ubuntu van su dung UDS/FIFO POSIX.
 
 API POSIX tren Linux:
@@ -24,7 +24,7 @@ Co the dung MSYS2/UCRT64 GCC da co san tren laptop:
 
 ```powershell
 & 'D:\msys64\ucrt64\bin\gcc.exe' -std=c11 -O2 -Wall -Wextra `
-  src/CCplusCsharp/edge_triage_daemon.c `
+  vital-signs-system/CCplusCsharp/edge_triage_daemon.c `
   -lws2_32 -o edge_triage_daemon.exe
 ```
 
@@ -42,7 +42,7 @@ Trong Ubuntu:
 ```bash
 cd /mnt/d/htmlcss-course/reactJS/my-chatBot-app
 gcc -std=c11 -O2 -Wall -Wextra \
-  src/CCplusCsharp/edge_triage_daemon.c \
+  vital-signs-system/CCplusCsharp/edge_triage_daemon.c \
   -lm -o edge_triage_daemon
 ```
 
@@ -67,7 +67,7 @@ Sau 10 frame se bat dau tra ve `status:"OK"` thay vi `WARMING_UP`.
 Doc profile tren Windows:
 
 ```powershell
-py -3.11 -u src\python\inspect_baseline.py
+py -3.11 -u vital-signs-system\python\inspect_baseline.py
 ```
 
 Script mac dinh doc `C:\Temp\patient_baseline.bin` tren Windows va
@@ -113,7 +113,16 @@ Theo doi JSON dau ra tren stdout va duong dan profile. Ctrl+C se luu profile va 
 ## Trang thai component lien quan
 
 - TCM-Tongue: dataset 20 lop duoc dinh nghia trong `TCM-Tongue/dataset/tcm_tongue.yaml`.
-- Training script hien dung CPU smoke-test mot epoch neu `CUDA=False`; khong thay checkpoint moi nao trong workspace.
+- Training gan nhat la CPU smoke-test: YOLO11n, 1 epoch, 5% du lieu, kich thuoc anh 320, batch 4, workers 0. Checkpoint `best.pt` va `last.pt` co trong `TCM-Tongue/dataset/TCM_Tongue_Runs/yolo11_tcm-5/weights/`; PyTorch hien la CPU-only (`torch 2.15.0+cpu`, `CUDA=False`).
 - GPU workstation can Python 3.11, CUDA-capable PyTorch va Ultralytics; khong lien quan truc tiep den daemon C nay.
-- `.env` co key Gemini nhung gia tri rong; key khong can thiet cho `edge_triage_daemon.c`.
-- Thu muc `fall-detection-system/` hien khong co README hoac trong so mo hinh trong workspace.
+- `.env` co bien `GEMINI_API_KEY`; gia tri khong duoc kiem tra. Key khong can thiet cho `edge_triage_daemon.c`.
+- `fall-detection-system/` la submodule rieng, co README va trong so `yolo11n-pose.pt` trong workspace.
+
+## Trang HTML theo doi cho bac si
+
+- `index.html` o thu muc goc la diem mount cua Vite (`#root` va `/src/main.jsx`), khong phai trang dashboard.
+- `src/App.jsx` hien la giao dien mau Vite/React. Khong tim thay trang cu trong cac commit hoac snapshot Git con luu; trang da duoc tao lai rieng tai `vital-signs-system/doctor_dashboard.html`.
+- Trang moi hien du lieu minh hoa mac dinh va co the nap JSONL do daemon C ghi ra; no khong ket noi truc tiep voi daemon va khong tu dong cap nhat theo thoi gian thuc.
+- Du lieu JSONL duoc xu ly trong trinh duyet, khong gui len may chu. Trang hien thi telemetry va nhan mo hinh, khong phai ket luan y khoa.
+- Truoc khi tao lai trang, lich su Git chi ghi nhan `index.html` trong commit `7f2b5fe` (`adding vital signs`); khong tim thay dashboard cu trong cac commit hoac snapshot Git con luu.
+- Cach mo trang va nap JSONL duoc ghi trong `vital-signs-system/README.md`.
