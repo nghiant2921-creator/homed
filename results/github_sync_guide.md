@@ -5,7 +5,8 @@ Checked against GitHub on 2026-11-26.
 ## Repository status
 
 - Root repository: `nghiant2921-creator/homed`, branch `master`.
-- Root previously synchronized to `7f2b5fe` (`adding vital signs`); this update adds submodule metadata and this guide.
+- Current `master` contains the Vital Signs source, HTML preview, and Ubuntu notes.
+- GitHub's default branch is `main` (`3cc01a8`, initial commit); the current project is on `master`. Explicitly select `master` when cloning.
 - The nested repository uses `https://github.com/nghiant2921-creator/fall-detection-system.git`, branch `main`. Commit `f2aa309` publishes `infer_fall.py` and `requirements-cpu.txt`.
 - `.gitmodules` now maps `fall-detection-system` to that GitHub repository so a recursive clone on Ubuntu can initialize it.
 - `.env` exists and has a `GEMINI_API_KEY` entry; the key value is intentionally not recorded. The root does not track `.env`.
@@ -26,10 +27,26 @@ git status --short --branch
 
 ## Nested fall-detection repository
 
-To get both repositories on Ubuntu 24.04:
+Fresh clone on Ubuntu 24.04:
 
-```powershell
-git clone --recurse-submodules https://github.com/nghiant2921-creator/homed.git
+```bash
+git clone --branch master --recurse-submodules https://github.com/nghiant2921-creator/homed.git
+cd homed
+git branch --show-current
+```
+
+For an existing clone, first check `git status`; preserve local edits before switching branches. Then:
+
+```bash
+git fetch origin
+git switch master
+git pull --ff-only origin master
+git submodule update --init --recursive
+```
+
+Install the CPU fall-detection dependencies if needed:
+
+```bash
 cd homed
 python3 -m venv .venv
 source .venv/bin/activate
@@ -37,6 +54,11 @@ python -m pip install -r fall-detection-system/requirements-cpu.txt
 ```
 
 The nested repository is separately pushable from `fall-detection-system`; the root tracks its selected commit as a submodule.
+
+The Vital Signs component currently has C inference code and a Python baseline
+profile inspector, not a training script or labelled training dataset. See
+`vital-signs-system/README.md` before treating this checkout as ready for model
+training.
 
 ## Keep local-only data out of Git
 

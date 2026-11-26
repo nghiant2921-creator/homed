@@ -55,10 +55,21 @@ To save the daemon's JSON output locally while it runs:
 After collecting data, use **Nạp JSONL từ daemon** in the page to select
 `/tmp/vital-telemetry.jsonl`. The page parses the file locally; it does not
 connect to the daemon or upload the data. `WARMING_UP` lines are skipped.
+This is a display/import preview only: it does not capture clinician
+accept/reject feedback, provide a live feed, or train the model.
 
 The profile inspector uses only the Python standard library. The committed
 `.exe` file is a Windows binary; build a native executable on Ubuntu with the
 commands above instead.
+
+## Training readiness
+
+The current Vital Signs C programs contain fixed inference weights; the Python
+script only reads and validates a baseline profile. There is not yet a
+Vital Signs training script or labelled training dataset in this directory.
+The daemon's adaptive patient baseline is calibration, not model-weight
+training. Prepare a consented, de-identified telemetry dataset with labels and
+a training/export pipeline before attempting model training.
 
 This is a proof-of-concept component, not a medical device or a substitute for
 clinical assessment. Validate it with appropriate data and hardware before

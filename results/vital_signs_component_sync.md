@@ -7,7 +7,12 @@ Checked on 2026-11-26.
   tracked counterpart.
 - A standalone doctor-facing preview is available at
   `vital-signs-system/doctor_dashboard.html`. It starts with synthetic demo
-  data and can import daemon JSONL locally; it is not a live feed.
+  data and can import daemon JSONL locally; it is not a live feed and does not
+  capture clinician accept/reject feedback for a human-in-the-loop workflow.
+- Vital Signs is not ready for ML training: the C inference weights are fixed
+  constants, `inspect_baseline.py` only reads a baseline profile, and there is
+  no Vital Signs training script or labelled dataset in this directory. The
+  daemon's adaptive baseline is calibration, not model training.
 - The Windows `.exe` was moved with the component. Ubuntu users should compile
   native binaries using `vital-signs-system/README.md`.
 - Python AST parsing passed. The available Windows GCC returned exit code 1
@@ -15,6 +20,10 @@ Checked on 2026-11-26.
   verified in this environment.
 - Dashboard browser check passed for demo rendering and JSONL import, including
   displaying an alert flag and skipping a `WARMING_UP` record.
+- Root branch `master` was fetched from GitHub at `49a9fee`; no newer laptop
+  commit was present on that remote at check time. GitHub's default branch is
+  `main` at the initial commit, so Ubuntu clones must explicitly request
+  `--branch master`.
 - `.vscode/tasks.json` is ignored by the repository and uses a machine-local
   MSYS2 Windows GCC path; it was not staged.
 - The repository API uses `@google/genai`; `.env` contains a `GEMINI_API_KEY`
