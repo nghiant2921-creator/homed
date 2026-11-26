@@ -294,7 +294,7 @@
 
       <aside class="notice" role="note">
         <span aria-hidden="true">ⓘ</span>
-        <span><strong>Bản thử nghiệm, không phải hồ sơ bệnh án.</strong> Dữ liệu JSONL được đọc trong trình duyệt; chỉ bản ghi mới nhất được gửi tới máy chủ khi bạn bấm nút phân tích. Không dùng nhãn mô hình để thay thế đánh giá chuyên môn.</span>
+        <span><strong>Bản thử nghiệm, không phải hồ sơ bệnh án.</strong> Tệp JSONL được đọc trong trình duyệt. Bản GitHub Pages công khai chỉ để xem demo và đã tắt chức năng gửi dữ liệu tới API; không nạp dữ liệu bệnh nhân thật. Khi chạy local với backend riêng, chỉ bản ghi mới nhất được gửi khi bấm nút phân tích. Không dùng nhãn mô hình để thay thế đánh giá chuyên môn.</span>
       </aside>
 
       <section class="toolbar" aria-label="Nguồn dữ liệu">
@@ -430,6 +430,7 @@
       let sourceName = "Bản xem trước · dữ liệu minh họa";
       let isDemo = true;
       let isAnalyzing = false;
+      const apiAnalysisEnabled = !window.location.hostname.endsWith(".github.io");
 
       function normalizeRecord(record) {
         if (!record || typeof record !== "object" || record.status === "WARMING_UP") return null;
@@ -523,10 +524,12 @@
 
       function render() {
         const latest = records[records.length - 1];
-        byId("analyze-button").disabled = isDemo || isAnalyzing;
+        byId("analyze-button").disabled = isDemo || isAnalyzing || !apiAnalysisEnabled;
         byId("analyze-button").textContent = isAnalyzing
           ? "Đang phân tích…"
-          : "Phân tích bản ghi mới nhất";
+          : apiAnalysisEnabled
+            ? "Phân tích bản ghi mới nhất"
+            : "Phân tích chỉ khả dụng khi chạy local";
         byId("source-label").textContent = sourceName;
         byId("record-title").textContent = isDemo ? "Hồ sơ minh họa" : "Dữ liệu từ tệp JSONL";
         byId("record-subtitle").textContent = `${isDemo ? "Chưa kết nối thiết bị" : "Đọc cục bộ trong trình duyệt"} · ${records.length} bản ghi · tick cuối ${latest.tick}`;
@@ -583,6 +586,10 @@
       }
 
       byId("analyze-button").addEventListener("click", async () => {
+        if (!apiAnalysisEnabled) {
+          byId("error-message").textContent = "Bản demo công khai không gửi dữ liệu tới API.";
+          return;
+        }
         if (isDemo || records.length === 0) {
           byId("error-message").textContent = "Hãy nạp JSONL có bản ghi hợp lệ trước khi phân tích.";
           return;

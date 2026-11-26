@@ -154,6 +154,8 @@ select **GitHub Actions** as the build and deployment source. The workflow is
 This public page contains only the demo dashboard; do not load, publish, or
 send real patient data there. GitHub Pages is static hosting and does not run
 the Ubuntu backend or process Gemini API requests.
+The dashboard disables API analysis on the public `github.io` page; connect
+the frontend to a trusted backend only when running it locally.
 
 The top bar links to the official Gemini API documentation. After importing
 daemon JSONL, **Phân tích bản ghi mới nhất** sends only the latest Vital Signs
