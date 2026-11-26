@@ -52,11 +52,14 @@ To save the daemon's JSON output locally while it runs:
   > /tmp/vital-telemetry.jsonl
 ```
 
-After collecting data, use **Nạp JSONL từ daemon** in the page to select
-`/tmp/vital-telemetry.jsonl`. The page parses the file locally; it does not
-connect to the daemon or upload the data. `WARMING_UP` lines are skipped.
-This is a display/import preview only: it does not capture clinician
-accept/reject feedback, provide a live feed, or train the model.
+After collecting data, use **Nạp JSONL từ daemon** in the dashboard to select
+`/tmp/vital-telemetry.jsonl`. The file is parsed locally and `WARMING_UP` lines
+are skipped. To request an explanation, click **Phân tích bản ghi mới nhất**;
+the dashboard sends only the latest valid record to
+`POST /api/analyze/holistic`. Run the Express server from the repository root
+with `npm run server`. If the dashboard is served by Vite, its `/api` proxy
+forwards the request to that server. The flow does not connect to the daemon
+live, capture clinician accept/reject feedback, or train the model.
 
 The profile inspector uses only the Python standard library. The committed
 `.exe` file is a Windows binary; build a native executable on Ubuntu with the

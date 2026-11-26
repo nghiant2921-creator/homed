@@ -155,14 +155,16 @@ This public page contains only the demo dashboard; do not load, publish, or
 send real patient data there. GitHub Pages is static hosting and does not run
 the Ubuntu backend or process Gemini API requests.
 
-The top bar links to the official Gemini API documentation. This is a
-documentation link only: the dashboard does not yet call Gemini or the Express
-API. Vite proxies `/api/*` requests to `VITE_BACKEND_URL`; without `.env.local`
-it uses `http://localhost:3000`. Existing backend routes include
-`/api/analyze/tongue`, `/api/analyze/fall`, and `/api/analyze/holistic`.
-Keep `GEMINI_API_KEY` on the Ubuntu backend; never expose it in a `VITE_`
-variable. Keep the Ubuntu API on a trusted private network or VPN; do not
-expose port 3000 directly to the public Internet.
+The top bar links to the official Gemini API documentation. After importing
+daemon JSONL, **Phân tích bản ghi mới nhất** sends only the latest Vital Signs
+reading to `/api/analyze/holistic`; the dashboard shows a readable summary of
+the result. Start the Express backend separately with `npm run server` and
+configure `GEMINI_API_KEY` in its `.env`. Vite proxies `/api/*` requests to
+`VITE_BACKEND_URL`; without `.env.local` it uses `http://localhost:3000`.
+Existing backend routes also include `/api/analyze/tongue` and
+`/api/analyze/fall`. Keep `GEMINI_API_KEY` on the backend; never expose it in a
+`VITE_` variable. Keep the Ubuntu API on a trusted private network or VPN; do
+not expose port 3000 directly to the public Internet.
 
 To check a production bundle:
 

@@ -152,6 +152,7 @@
       }
 
       .button:hover { background: #24515a; }
+      .button:disabled { cursor: not-allowed; opacity: .55; }
       .button:focus-visible { outline: 3px solid #8ccfbd; outline-offset: 2px; }
       #file-input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); }
 
@@ -208,6 +209,11 @@
 
       .lower-grid { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(260px, .85fr); gap: 16px; }
       .card { padding: 20px; }
+      .analysis-card { margin-bottom: 16px; }
+      .analysis-fields { display: grid; gap: 12px; margin-top: 16px; }
+      .analysis-field { padding-top: 12px; border-top: 1px solid var(--line); }
+      .analysis-label { color: var(--muted); font-size: 11px; font-weight: 750; }
+      .analysis-value { margin-top: 5px; font-size: 13px; line-height: 1.55; white-space: pre-wrap; }
       .card-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
       h2 { margin: 0; font-size: 15px; letter-spacing: -.02em; }
       .card-description { margin: 6px 0 0; color: var(--muted); font-size: 12px; }
@@ -288,7 +294,7 @@
 
       <aside class="notice" role="note">
         <span aria-hidden="true">ⓘ</span>
-        <span><strong>Bản thử nghiệm, không phải hồ sơ bệnh án.</strong> Mặc định trang dùng dữ liệu minh họa; khi nạp JSONL, tệp được xử lý ngay trong trình duyệt và không gửi lên máy chủ. Không dùng nhãn mô hình để thay thế đánh giá chuyên môn.</span>
+        <span><strong>Bản thử nghiệm, không phải hồ sơ bệnh án.</strong> Dữ liệu JSONL được đọc trong trình duyệt; chỉ bản ghi mới nhất được gửi tới máy chủ khi bạn bấm nút phân tích. Không dùng nhãn mô hình để thay thế đánh giá chuyên môn.</span>
       </aside>
 
       <section class="toolbar" aria-label="Nguồn dữ liệu">
@@ -299,6 +305,7 @@
         <div class="toolbar-actions">
           <input id="file-input" type="file" accept=".jsonl,.json,.txt,application/json" />
           <label class="button" for="file-input">Nạp JSONL từ daemon</label>
+          <button class="button" id="analyze-button" type="button" disabled>Phân tích bản ghi mới nhất</button>
         </div>
       </section>
       <p class="error" id="error-message" role="status" aria-live="polite"></p>
@@ -339,6 +346,38 @@
           </div>
         </div>
         <span class="tag" id="status-tag">DEMO</span>
+      </section>
+
+      <section class="card analysis-card" id="analysis-card" aria-labelledby="analysis-title" aria-live="polite" hidden>
+        <div class="card-heading">
+          <div>
+            <h2 id="analysis-title">Giải thích kết quả tổng hợp</h2>
+            <p class="card-description" id="analysis-meta"></p>
+          </div>
+          <span class="tag" id="analysis-alert-level">—</span>
+        </div>
+        <div class="analysis-fields">
+          <div class="analysis-field">
+            <div class="analysis-label">Vital Signs</div>
+            <div class="analysis-value" id="analysis-vitals"></div>
+          </div>
+          <div class="analysis-field">
+            <div class="analysis-label">Đánh giá sinh hiệu</div>
+            <div class="analysis-value" id="analysis-vitals-text"></div>
+          </div>
+          <div class="analysis-field">
+            <div class="analysis-label">Đánh giá nguy cơ té ngã / dáng đi</div>
+            <div class="analysis-value" id="analysis-fall"></div>
+          </div>
+          <div class="analysis-field">
+            <div class="analysis-label">Nhận định lưỡi YHCT</div>
+            <div class="analysis-value" id="analysis-tongue"></div>
+          </div>
+          <div class="analysis-field">
+            <div class="analysis-label">Khuyến nghị tổng hợp</div>
+            <div class="analysis-value" id="analysis-recommendation"></div>
+          </div>
+        </div>
       </section>
 
       <div class="lower-grid">
@@ -390,6 +429,7 @@
       let records;
       let sourceName = "Bản xem trước · dữ liệu minh họa";
       let isDemo = true;
+      let isAnalyzing = false;
 
       function normalizeRecord(record) {
         if (!record || typeof record !== "object" || record.status === "WARMING_UP") return null;
@@ -483,6 +523,10 @@
 
       function render() {
         const latest = records[records.length - 1];
+        byId("analyze-button").disabled = isDemo || isAnalyzing;
+        byId("analyze-button").textContent = isAnalyzing
+          ? "Đang phân tích…"
+          : "Phân tích bản ghi mới nhất";
         byId("source-label").textContent = sourceName;
         byId("record-title").textContent = isDemo ? "Hồ sơ minh họa" : "Dữ liệu từ tệp JSONL";
         byId("record-subtitle").textContent = `${isDemo ? "Chưa kết nối thiết bị" : "Đọc cục bộ trong trình duyệt"} · ${records.length} bản ghi · tick cuối ${latest.tick}`;
@@ -500,6 +544,82 @@
         renderChart();
         renderEvents();
       }
+
+      function renderAnalysisResult(result) {
+        const insight = result.geminiInsight ?? {};
+        const analysis = insight.analysis ?? {};
+        const latest = records[records.length - 1];
+        const alertLabels = {
+          LOW: "Thấp",
+          MEDIUM: "Trung bình",
+          HIGH: "Cao",
+          CRITICAL: "Khẩn cấp",
+        };
+
+        byId("analysis-card").hidden = false;
+        byId("analysis-meta").textContent = insight.api_used
+          ? `Phân tích bằng ${insight.model ?? "Gemini"} · kết quả tham khảo, không phải chẩn đoán.`
+          : (insight.message ?? "Không có diễn giải từ mô hình ngôn ngữ.");
+        byId("analysis-alert-level").textContent = alertLabels[analysis.alert_level] ?? "Chưa đánh giá";
+        byId("analysis-vitals").textContent =
+          `Tick ${latest.tick}: nhịp tim ${latest.hr.toFixed(0)} bpm · SpO₂ ${latest.spo2.toFixed(1)}% · góc thân ${latest.torso.toFixed(1)}° · nhãn edge: ${latest.prediction}.`;
+        byId("analysis-vitals-text").textContent =
+          analysis.vital_signs_assessment ?? "Chưa có diễn giải Vital Signs từ Gemini.";
+        byId("analysis-fall").textContent =
+          analysis.fall_gait_assessment ?? "Không gửi dữ liệu ảnh/video dáng đi trong yêu cầu này.";
+        byId("analysis-tongue").textContent =
+          analysis.tcm_syndrome_summary ?? "Không gửi ảnh lưỡi trong yêu cầu này.";
+        byId("analysis-recommendation").textContent =
+          analysis.combined_recommendation ?? "Chưa có khuyến nghị tổng hợp.";
+      }
+
+      function readableError(message) {
+        try {
+          const parsed = JSON.parse(message);
+          return parsed.error?.message ?? message;
+        } catch {
+          return message;
+        }
+      }
+
+      byId("analyze-button").addEventListener("click", async () => {
+        if (isDemo || records.length === 0) {
+          byId("error-message").textContent = "Hãy nạp JSONL có bản ghi hợp lệ trước khi phân tích.";
+          return;
+        }
+
+        const latest = records[records.length - 1];
+        const formData = new FormData();
+        formData.set("vital_signs", JSON.stringify({
+          tick: latest.tick,
+          hr: latest.hr,
+          spo2: latest.spo2,
+          torso_deg: latest.torso,
+          prediction: latest.prediction,
+          confidence: latest.confidence,
+          trigger_vlm_hitl: latest.alert,
+        }));
+
+        byId("error-message").textContent = "";
+        byId("analysis-card").hidden = true;
+        isAnalyzing = true;
+        render();
+        try {
+          const response = await fetch("/api/analyze/holistic", {
+            method: "POST",
+            body: formData,
+          });
+          const result = await response.json();
+          if (!response.ok) throw new Error(result.error ?? `HTTP ${response.status}`);
+          renderAnalysisResult(result);
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error);
+          byId("error-message").textContent = `Không phân tích được: ${readableError(message)}`;
+        } finally {
+          isAnalyzing = false;
+          render();
+        }
+      });
 
       function parseFileContents(text) {
         const trimmed = text.trim();
